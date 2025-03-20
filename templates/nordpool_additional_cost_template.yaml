@@ -1,0 +1,157 @@
+- sensor:
+    - name: "NordPool kwh import with additional costs and VAT"
+      unique_id: "486be681-42fc-41f3-8aea-4df4da33a251"
+      icon: mdi:currency-eur
+      unit_of_measurement: "€"
+      state: >
+        {{ states('sensor.nordpool_kwh_ee_eur_3_10_0') }}
+      attributes:
+        state_class: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'state_class') }}
+        average: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'average') }}
+        off_peak_1: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'off_peak_1') }}
+        off_peak_2: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'off_peak_2') }}
+        peak: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'peak') }}
+        min: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'min') }}
+        max: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'max') }}
+        mean: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'mean') }}
+        unit: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'unit') }}
+        currency: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'currency') }}
+        country: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'country') }}
+        region: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'region') }}
+        low_price: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'low_price') }}
+        price_percent_to_average: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'price_percent_to_average') }}
+        raw_today: >
+          {% set original_list = state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'raw_today') %}
+          {% set ns = namespace(data=[]) %}
+          {% for item in original_list %}
+            {% set vat_multiplier = (100 + (states('input_number.nordpool_vat') | float)) / 100 %}
+            {% set additional_cost = (states('input_number.nordpool_import_additional_costs') | float) if 7 <= as_local(item.start).hour < 22 else (states('input_number.nordpool_import_additional_costs_night') | float) %}
+            {% set ns.data = ns.data + [{
+            'start': item.start.isoformat(),
+            'end': item.end.isoformat(),
+            'value': ((item.value | float) + (additional_cost | float)) * vat_multiplier
+            }] %}
+          {% endfor %}
+          {{ ns.data | tojson }}
+        raw_tomorrow: >
+          {% set original_list = state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'raw_tomorrow') -%}
+          {% set ns = namespace(data=[]) %}
+          {% for item in original_list %}
+            {% set vat_multiplier = (100 + (states('input_number.nordpool_vat') | float)) | float / 100 %}
+            {% set additional_cost = states('input_number.nordpool_import_additional_costs') | float if 7 <= as_local(item.start).hour < 22 else states('input_number.nordpool_import_additional_costs_night') | float %}
+            {% set ns.data = ns.data + [{
+            'start': item.start.isoformat(),
+            'end': item.end.isoformat(),
+            'value': ((item.value | float) + (additional_cost | float)) * vat_multiplier
+            }] %}
+          {% endfor %}
+          {{ ns.data | tojson }}
+        today: >
+          {% set original_list = state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'raw_today') -%}
+          {% set ns = namespace(data=[]) %}
+          {% for item in original_list %}
+            {% set vat_multiplier = (100 + (states('input_number.nordpool_vat') | float)) | float / 100 %}
+            {% set additional_cost = states('input_number.nordpool_import_additional_costs') | float if 7 <= as_local(item.start).hour < 22 else states('input_number.nordpool_import_additional_costs_night') | float %}
+            {% set ns.data = ns.data + [((item.value | float) + (additional_cost | float)) * vat_multiplier] -%}
+          {% endfor %}
+          {{ ns.data }}
+        tomorrow: >
+          {% set original_list = state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'raw_tomorrow') -%}
+          {% set ns = namespace(data=[]) %}
+          {% for item in original_list %}
+            {% set vat_multiplier = (100 + (states('input_number.nordpool_vat') | float)) | float / 100 %}
+            {% set additional_cost = states('input_number.nordpool_import_additional_costs') | float if 7 <= as_local(item.start).hour < 22 else states('input_number.nordpool_import_additional_costs_night') | float %}
+            {% set ns.data = ns.data + [((item.value | float) + (additional_cost | float)) * vat_multiplier] -%}
+          {% endfor %}
+          {{ ns.data }}
+
+- sensor:
+    - name: "NordPool kwh export subtracting sales margin"
+      unique_id: "64bae0f6-4fbd-4912-afba-6b4fae4413ee"
+      icon: mdi:currency-eur
+      unit_of_measurement: "€"
+      state: >
+        {{ states('sensor.nordpool_kwh_ee_eur_3_10_0') }}
+      attributes:
+        state_class: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'state_class') }}
+        average: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'average') }}
+        off_peak_1: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'off_peak_1') }}
+        off_peak_2: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'off_peak_2') }}
+        peak: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'peak') }}
+        min: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'min') }}
+        max: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'max') }}
+        mean: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'mean') }}
+        unit: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'unit') }}
+        currency: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'currency') }}
+        country: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'country') }}
+        region: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'region') }}
+        low_price: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'low_price') }}
+        price_percent_to_average: >
+          {{ state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'price_percent_to_average') }}
+        raw_today: >
+          {% set original_list = state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'raw_today') %}
+          {% set ns = namespace(data=[]) %}
+          {% set sales_margin = states('input_number.nordpool_export_sales_margin') | float %}
+          {% for item in original_list %}
+          {% set ns.data = ns.data + [{
+          'start': item.start.isoformat(),
+          'end': item.end.isoformat(),
+          'value': (item.value | float) - (sales_margin | float)
+          }] %}
+          {% endfor %}
+          {{ ns.data | tojson }}
+        raw_tomorrow: >
+          {% set original_list = state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'raw_tomorrow') -%}
+          {% set ns = namespace(data=[]) %}
+          {% set sales_margin = states('input_number.nordpool_export_sales_margin') | float %}
+          {% for item in original_list %}
+          {% set ns.data = ns.data + [{
+          'start': item.start.isoformat(),
+          'end': item.end.isoformat(),
+          'value': (item.value | float) - (sales_margin | float)
+          }] %}
+          {% endfor %}
+          {{ ns.data | tojson }}
+        today: >
+          {% set original_list = state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'raw_today') -%}
+          {% set ns = namespace(data=[]) %}
+          {% set sales_margin = states('input_number.nordpool_export_sales_margin') | float %}
+          {% for item in original_list %}
+          {% set ns.data = ns.data + [(item.value | float) - (sales_margin | float)] -%}
+          {% endfor %}
+          {{ ns.data }}
+        tomorrow: >
+          {% set original_list = state_attr('sensor.nordpool_kwh_ee_eur_3_10_0', 'raw_tomorrow') -%}
+          {% set ns = namespace(data=[]) %}
+          {% set sales_margin = states('input_number.nordpool_export_sales_margin') | float %}
+          {% for item in original_list %}
+          {% set ns.data = ns.data + [(item.value | float) - (sales_margin | float)] -%}
+          {% endfor %}
+          {{ ns.data }}
