@@ -39,7 +39,8 @@
           {% set ns = namespace(data=[]) %}
           {% for item in original_list %}
             {% set vat_multiplier = (100 + (states('input_number.nordpool_vat') | float)) / 100 %}
-            {% set additional_cost = (states('input_number.nordpool_import_additional_costs') | float) if 7 <= as_local(item.start).hour < 22 else (states('input_number.nordpool_import_additional_costs_night') | float) %}
+            {% set is_weekend = as_local(item.start).weekday() >= 5 %}
+            {% set additional_cost = (states('input_number.nordpool_import_additional_costs_night') | float) if is_weekend or (as_local(item.start).hour < 7 or as_local(item.start).hour >= 22) else (states('input_number.nordpool_import_additional_costs') | float) %}
             {% set ns.data = ns.data + [{
             'start': item.start.isoformat(),
             'end': item.end.isoformat(),
@@ -52,7 +53,8 @@
           {% set ns = namespace(data=[]) %}
           {% for item in original_list %}
             {% set vat_multiplier = (100 + (states('input_number.nordpool_vat') | float)) | float / 100 %}
-            {% set additional_cost = states('input_number.nordpool_import_additional_costs') | float if 7 <= as_local(item.start).hour < 22 else states('input_number.nordpool_import_additional_costs_night') | float %}
+            {% set is_weekend = as_local(item.start).weekday() >= 5 %}
+            {% set additional_cost = (states('input_number.nordpool_import_additional_costs_night') | float) if is_weekend or (as_local(item.start).hour < 7 or as_local(item.start).hour >= 22) else (states('input_number.nordpool_import_additional_costs') | float) %}
             {% set ns.data = ns.data + [{
             'start': item.start.isoformat(),
             'end': item.end.isoformat(),
@@ -65,7 +67,8 @@
           {% set ns = namespace(data=[]) %}
           {% for item in original_list %}
             {% set vat_multiplier = (100 + (states('input_number.nordpool_vat') | float)) | float / 100 %}
-            {% set additional_cost = states('input_number.nordpool_import_additional_costs') | float if 7 <= as_local(item.start).hour < 22 else states('input_number.nordpool_import_additional_costs_night') | float %}
+            {% set is_weekend = as_local(item.start).weekday() >= 5 %}
+            {% set additional_cost = (states('input_number.nordpool_import_additional_costs_night') | float) if is_weekend or (as_local(item.start).hour < 7 or as_local(item.start).hour >= 22) else (states('input_number.nordpool_import_additional_costs') | float) %}
             {% set ns.data = ns.data + [((item.value | float) + (additional_cost | float)) * vat_multiplier] -%}
           {% endfor %}
           {{ ns.data }}
@@ -74,7 +77,8 @@
           {% set ns = namespace(data=[]) %}
           {% for item in original_list %}
             {% set vat_multiplier = (100 + (states('input_number.nordpool_vat') | float)) | float / 100 %}
-            {% set additional_cost = states('input_number.nordpool_import_additional_costs') | float if 7 <= as_local(item.start).hour < 22 else states('input_number.nordpool_import_additional_costs_night') | float %}
+            {% set is_weekend = as_local(item.start).weekday() >= 5 %}
+            {% set additional_cost = (states('input_number.nordpool_import_additional_costs_night') | float) if is_weekend or (as_local(item.start).hour < 7 or as_local(item.start).hour >= 22) else (states('input_number.nordpool_import_additional_costs') | float) %}
             {% set ns.data = ns.data + [((item.value | float) + (additional_cost | float)) * vat_multiplier] -%}
           {% endfor %}
           {{ ns.data }}
